@@ -1,0 +1,20 @@
+# debug or release
+run-mode: debug
+# application
+app:
+  page-size: 10
+  jwt-secret: 23347$040412
+# server
+server:
+  http-port: 9090
+  read-timeout: 60
+  write-timeout: 60
+# database
+database:
+  type: mysql
+  user: username
+  password: password
+  host: 127.0.0.1
+  port: 3306
+  name: blog
+  table-prefix: blog_
