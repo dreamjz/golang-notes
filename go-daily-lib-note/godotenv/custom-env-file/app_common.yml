@@ -1,0 +1,5 @@
+# godotenv/custom-env-file/app_common.yml
+# app name
+app_name: godotenv_note
+# app version
+version: 0.0.1

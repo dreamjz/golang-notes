@@ -1,0 +1,7 @@
+app_name: unmarshal
+log_level: debug
+mysql:
+  port: 3306
+  ip: 127.0.0.1
+redis:
+  port: 6379
