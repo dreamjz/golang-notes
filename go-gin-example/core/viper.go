@@ -23,7 +23,6 @@ func Viper() {
 		if err != nil {
 			log.Printf("Re-reading config failed, %v", err)
 		}
-		log.Println("New config re-read")
 	})
 	viper.WatchConfig()
 	// decode config into struct

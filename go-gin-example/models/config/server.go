@@ -1,7 +1,9 @@
 package config
 
+import "time"
+
 type Server struct {
-	HttpPort     string `mapstructure:"http-port"`
-	ReadTimeout  int    `mpstructure:"read-timeout"`
-	WriteTimeout int    `mapstructure:"write-timeout"`
+	HttpPort     int           `mapstructure:"http-port"`
+	ReadTimeout  time.Duration `mpstructure:"read-timeout"`
+	WriteTimeout time.Duration `mapstructure:"write-timeout"`
 }

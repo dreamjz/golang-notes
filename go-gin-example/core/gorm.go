@@ -5,11 +5,19 @@ import (
 	"go-gin-example/global"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"gorm.io/gorm/schema"
 	"log"
 	"time"
 )
 
-// Gorm initialize database connetction
+type Model struct {
+	ID        uint           `gorm:"primarykey" json:"id"`
+	CreatedAt time.Time      `json:"createdAt"`
+	UpdatedAt time.Time      `json:"updatedAt"`
+	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
+}
+
+// Gorm initialize database connection
 func Gorm() {
 	// mysql config
 	m := global.AppConfig.Database
@@ -17,7 +25,12 @@ func Gorm() {
 		m.User, m.Password, m.Host, m.Port, m.Name)
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: dsn,
-	}), &gorm.Config{})
+	}), &gorm.Config{
+		NamingStrategy: schema.NamingStrategy{
+			TablePrefix:   global.AppConfig.Database.TablePrefix, // set table name prefix
+			SingularTable: true,                                  // use singular table name
+		},
+	})
 	if err != nil {
 		log.Fatalf("open database failed, %s", err)
 	}

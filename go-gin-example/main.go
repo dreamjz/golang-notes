@@ -2,21 +2,25 @@ package main
 
 import (
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"go-gin-example/core"
 	"go-gin-example/global"
+	"net/http"
 )
 
 func main() {
+	// initialize
 	core.Viper()
 	core.Gorm()
 	core.CloseDB()
-	fmt.Printf("%#v\n", global.AppConfig)
-	r := gin.Default()
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
-	})
-	r.Run(":9090")
+	// router
+	router := core.Router()
+	// Listen and serve
+	s := &http.Server{
+		Addr:           fmt.Sprintf(":%d", global.AppConfig.Server.HttpPort),
+		Handler:        router,
+		ReadTimeout:    global.AppConfig.Server.ReadTimeout,
+		WriteTimeout:   global.AppConfig.Server.WriteTimeout,
+		MaxHeaderBytes: 1 << 20,
+	}
+	s.ListenAndServe()
 }
