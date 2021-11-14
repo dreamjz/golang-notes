@@ -11,7 +11,10 @@ func main() {
 	// initialize
 	core.Viper()
 	core.Gorm()
-	core.CloseDB()
+	if global.AppDB != nil {
+		db, _ := global.AppDB.DB()
+		defer db.Close()
+	}
 	// router
 	router := core.Router()
 	// Listen and serve

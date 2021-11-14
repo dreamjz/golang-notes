@@ -1,11 +1,9 @@
 package models
 
-import "go-gin-example/core"
-
 type Tag struct {
-	core.Model
-	Name      string `json:"name"`
-	State     int    `json:"state"`
-	CreatedBy string `json:"createdBy"`
-	UpdatedBy string `json:"updatedBy"`
+	Model
+	Name      string `json:"name" form:"name""`
+	State     int    `json:"state" form:"state"`
+	CreatedBy string `json:"createdBy" form:"createdBy"`
+	UpdatedBy string `json:"updatedBy" form:"updatedBy"`
 }

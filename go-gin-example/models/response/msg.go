@@ -11,6 +11,7 @@ var msgFlags = map[int]string{
 	ErrorAuthCheckTokenTimeout: "token timeout",
 	ErrorAuthToken:             "token generate failed",
 	ErrorAuth:                  "token error",
+	DataBaseError:              "database error",
 }
 
 func GetMsg(code int) string {

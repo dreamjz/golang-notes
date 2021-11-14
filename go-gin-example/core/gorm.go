@@ -3,19 +3,14 @@ package core
 import (
 	"fmt"
 	"go-gin-example/global"
-	"gorm.io/driver/mysql"
-	"gorm.io/gorm"
-	"gorm.io/gorm/schema"
 	"log"
 	"time"
-)
 
-type Model struct {
-	ID        uint           `gorm:"primarykey" json:"id"`
-	CreatedAt time.Time      `json:"createdAt"`
-	UpdatedAt time.Time      `json:"updatedAt"`
-	DeletedAt gorm.DeletedAt `gorm:"index" json:"-"`
-}
+	"gorm.io/driver/mysql"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
+	"gorm.io/gorm/schema"
+)
 
 // Gorm initialize database connection
 func Gorm() {
@@ -26,6 +21,7 @@ func Gorm() {
 	db, err := gorm.Open(mysql.New(mysql.Config{
 		DSN: dsn,
 	}), &gorm.Config{
+		Logger: logger.Default.LogMode(logger.Info),
 		NamingStrategy: schema.NamingStrategy{
 			TablePrefix:   global.AppConfig.Database.TablePrefix, // set table name prefix
 			SingularTable: true,                                  // use singular table name
@@ -47,9 +43,4 @@ func Gorm() {
 	sqlDB.SetConnMaxLifetime(time.Hour)
 
 	global.AppDB = db
-}
-
-func CloseDB() {
-	sqlDB, _ := global.AppDB.DB()
-	defer sqlDB.Close()
 }
