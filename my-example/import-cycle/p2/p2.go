@@ -2,20 +2,26 @@ package p2
 
 import (
 	"fmt"
-	"import-cycle-example/p1"
 )
 
-type PP2 struct{}
-
-func New() *PP2 {
-	return &PP2{}
+type Pi interface {
+	HelloFromP1()
 }
 
-func (p *PP2) HelloFromP2() {
-	fmt.Println("Hello from p2")
+type PP2 struct{
+	PP1 Pi
+}
+
+func New(pp1 Pi) *PP2 {
+	return &PP2{
+		PP1: pp1,
+	}
+}
+
+func (p *PP2) HelloFromP2(){
+	fmt.Println("Hello from P2")
 }
 
 func (p *PP2) HelloFromP1Side() {
-	pp1 := p1.New()
-	pp1.HelloFromP1()
+	p.PP1.HelloFromP1()
 }
