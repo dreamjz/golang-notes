@@ -1,13 +1,14 @@
 package v1
 
 import (
-	"github.com/gin-gonic/gin"
-	"github.com/spf13/cast"
 	"go-gin-example/global"
 	"go-gin-example/models"
 	"go-gin-example/models/request"
 	"go-gin-example/models/response"
 	"go-gin-example/service"
+
+	"github.com/gin-gonic/gin"
+	"github.com/spf13/cast"
 )
 
 func GetArticleByID(c *gin.Context) {
@@ -66,7 +67,7 @@ func EditArticle(c *gin.Context) {
 		response.FailWithMessage(err.Error(), c)
 		return
 	}
-	var req request.EditArticleReq
+	var req models.Article
 	err = c.ShouldBindJSON(&req)
 	if err != nil {
 		response.FailWithMessage(err.Error(), c)

@@ -58,7 +58,7 @@ func EditTag(id uint, tag request.EditTagReq) (err error) {
 	return nil
 }
 
-func DeleteTagByID(id uint) (err error) {
+func DeleteTagByID(id uint) error {
 	exists, err := dao.ExistTagByID(id)
 	if err != nil {
 		return err
@@ -66,9 +66,5 @@ func DeleteTagByID(id uint) (err error) {
 	if !exists {
 		return ErrorTagNotExists
 	}
-	err = dao.DeleteTagByID(id)
-	if err != nil {
-		return err
-	}
-	return nil
+	return dao.DeleteTagByID(id)
 }

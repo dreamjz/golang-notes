@@ -1,11 +1,16 @@
 package service
 
 import (
+	"errors"
 	"go-gin-example/dao"
 	"go-gin-example/global"
 	"go-gin-example/models"
 	"go-gin-example/models/request"
 	"go-gin-example/utils"
+)
+
+var (
+	ErrArticleNotExists = errors.New("article not exists")
 )
 
 func GetArticleByID(id uint) (models.Article, error) {
@@ -28,9 +33,16 @@ func AddArticle(req models.Article) error {
 }
 
 func DeleteArticleByID(id uint) error {
-	return dao.DeleteTagByID(id)
+	exists, err := dao.ExistsArticleByID(id)
+	if err != nil {
+		return err
+	}
+	if exists {
+		return dao.DeleteArticleByID(id)
+	}
+	return ErrArticleNotExists
 }
 
-func EditArticle(id uint, req request.EditArticleReq) error {
+func EditArticle(id uint, req models.Article) error {
 	return dao.UpdateArticle(id, req)
 }
