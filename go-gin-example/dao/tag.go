@@ -44,9 +44,9 @@ func DeleteTagByID(id uint) (err error) {
 }
 
 // ExistTagByID return tag exists or not with specified id
-func ExistTagByID(id uint) (exists bool, err error) {
+func ExistTagByID(id uint) (bool, error) {
 	var tag models.Tag
-	err = global.AppDB.Model(&models.Tag{}).Where("id = ?", id).First(&tag).Error
+	err := global.AppDB.Model(&models.Tag{}).Where("id = ?", id).First(&tag).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
 	}
@@ -57,14 +57,14 @@ func ExistTagByID(id uint) (exists bool, err error) {
 }
 
 // ExistTagByName return same name tag exists or not
-func ExistTagByName(name string) (exists bool, err error) {
+func ExistTagByName(name string) (bool, error) {
 	var tag models.Tag
-	err = global.AppDB.Model(&models.Tag{}).Where("name=?", name).First(&tag).Error
+	err := global.AppDB.Model(&models.Tag{}).Where("name=?", name).First(&tag).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		return false, nil
 	}
 	if err != nil {
 		return true, err
 	}
-	return true, nil
+	return true, err
 }
