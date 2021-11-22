@@ -3,38 +3,29 @@ package main
 import (
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/gin-gonic/gin"
 )
 
 type Person struct {
-	Name       string    `form:"name"`
-	Address    string    `form:"address"`
-	Birthday   time.Time `form:"birthday" time_format:"2006-01-02" time_utc:"8"`
-	CreateTime time.Time `form:"createdTime" time_format:"unixNano"`
-	UnixTime   time.Time `form:"unixTime" time_format:"unix"`
+	ID   string `uri:"id" binding:"required,uuid"`
+	Name string `uri:"name" binding:"required"`
 }
 
 func main() {
 	router := gin.Default()
-	router.POST("/test", startPage)
+	router.GET("/:name/:id", bindUri)
 	log.Println("Listen and serve on 0.0.0.0:9090")
 	router.Run(":9090")
 }
 
-func startPage(c *gin.Context) {
-	var p Person
-	if err := c.ShouldBind(&p); err == nil {
-		log.Println(p.Name)
-		log.Println(p.Address)
-		log.Println(p.Birthday)
-		log.Println(p.CreateTime)
-		log.Println(p.UnixTime)
-	} else {
-		c.String(http.StatusOK, err.Error())
+func bindUri(c *gin.Context) {
+	var person Person
+	if err := c.ShouldBindUri(&person); err != nil {
+		c.JSON(http.StatusOK, gin.H{
+			"error": err.Error(),
+		})
 		return
 	}
-	c.String(http.StatusOK, "Success")
-
+	c.JSON(http.StatusOK, person)
 }
