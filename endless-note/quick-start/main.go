@@ -5,11 +5,13 @@ import (
 	"github.com/gin-gonic/gin"
 	"log"
 	"net/http"
+	"time"
 )
 
 func main(){
 	router := gin.Default()
 	router.GET("ping", func(c *gin.Context) {
+		time.Sleep(3 * time.Second)
 		c.String(http.StatusOK,"pong")
 	})
 	err := endless.ListenAndServe(":9090",router)
