@@ -2,3 +2,4 @@ go.sum
 *.log
 **/.idea/
 **/bin/
+*.db
