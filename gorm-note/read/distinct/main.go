@@ -11,14 +11,19 @@ import (
 )
 
 const (
-	DBName    = "order.db"
+	DBName    = "distinct.db"
 	UserCount = 10
 )
 
+var (
+	GroupAndAvgAge = []string{"group", "AVG(age) as avg_age"}
+)
+
 type User struct {
-	ID   uint `gorm:"primaryKey"`
-	Name string
-	Age  int
+	ID    uint `gorm:"primaryKey"`
+	Name  string
+	Group string
+	Age   int
 }
 
 func main() {
@@ -26,24 +31,21 @@ func main() {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal("connected db failed:", err.Error())
+		log.Fatal("connect db failed: ", err.Error())
 	}
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
-
 	db.AutoMigrate(&User{})
 	CreateUsers(db, UserCount)
 
-	// SELECT name,age FROM users ORDER BY age desc, name ;
-	var users []User
-	db.Select("name", "age").Order("age desc,name").Find(&users)
-	utils.PrintRecord(users)
-	// SELECT name,age FROM users ORDER BY age asc, name desc ;
-	var users2 []User
-	db.Select("name", "age").Order("age asc").Order("name desc").Find(&users2)
-	utils.PrintRecord(users2)
+	// Distinct
+	// SELECT DISTINCT name FROM users ;
+	var result []map[string]interface{}
+	db.Model(&User{}).Distinct("group").Find(&result)
+	utils.PrintRecord(result)
 
 }
+
 func CreateUsers(db *gorm.DB, num int) {
 	var count int64
 	db.Model(&User{}).Count(&count)
@@ -52,9 +54,10 @@ func CreateUsers(db *gorm.DB, num int) {
 	}
 	users := make([]User, num)
 	for i := 0; i < num; i++ {
+		grp := "group_" + strconv.Itoa(i%3)
 		name := "user_" + strconv.Itoa(i)
 		age := 10 + i
-		users[i] = User{Name: name, Age: age}
+		users[i] = User{Name: name, Age: age, Group: grp}
 	}
 	db.Create(&users)
 }

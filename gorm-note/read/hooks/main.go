@@ -11,14 +11,27 @@ import (
 )
 
 const (
-	DBName    = "order.db"
+	DBName    = "hooks.db"
 	UserCount = 10
 )
 
 type User struct {
-	ID   uint `gorm:"primaryKey"`
-	Name string
-	Age  int
+	ID    uint `gorm:"primaryKey"`
+	Name  string
+	Group string
+	Age   int
+	Email Email
+}
+
+type Email struct {
+	ID     uint `gorm:"primaryKey"`
+	UserID uint
+	Email  string
+}
+
+func (u *User) AfterFind(*gorm.DB) (err error) {
+	u.Age += 10
+	return
 }
 
 func main() {
@@ -26,24 +39,20 @@ func main() {
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 	if err != nil {
-		log.Fatal("connected db failed:", err.Error())
+		log.Fatal("connect db failed: ", err.Error())
 	}
 	sqlDB, _ := db.DB()
 	defer sqlDB.Close()
-
 	db.AutoMigrate(&User{})
+	db.AutoMigrate(&Email{})
 	CreateUsers(db, UserCount)
 
-	// SELECT name,age FROM users ORDER BY age desc, name ;
-	var users []User
-	db.Select("name", "age").Order("age desc,name").Find(&users)
-	utils.PrintRecord(users)
-	// SELECT name,age FROM users ORDER BY age asc, name desc ;
-	var users2 []User
-	db.Select("name", "age").Order("age asc").Order("name desc").Find(&users2)
-	utils.PrintRecord(users2)
-
+	// Hooks
+	var user User
+	db.Where("`group` = ?", "group_0").Take(&user)
+	utils.PrintRecord(user)
 }
+
 func CreateUsers(db *gorm.DB, num int) {
 	var count int64
 	db.Model(&User{}).Count(&count)
@@ -52,9 +61,11 @@ func CreateUsers(db *gorm.DB, num int) {
 	}
 	users := make([]User, num)
 	for i := 0; i < num; i++ {
+		grp := "group_" + strconv.Itoa(i%3)
 		name := "user_" + strconv.Itoa(i)
 		age := 10 + i
-		users[i] = User{Name: name, Age: age}
+		email := name + "@example.com"
+		users[i] = User{Name: name, Age: age, Group: grp, Email: Email{Email: email}}
 	}
 	db.Create(&users)
 }

@@ -5,7 +5,13 @@ import (
 	"reflect"
 )
 
-func PrintRecord(record interface{}) {
+func PrintRecord(record ...interface{}) {
+	for _, r := range record {
+		printSingle(r)
+	}
+}
+
+func printSingle(record interface{}) {
 	v := reflect.ValueOf(record)
 	k := v.Kind()
 	switch k {
