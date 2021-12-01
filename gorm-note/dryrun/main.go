@@ -1,8 +1,6 @@
 package main
 
 import (
-	"database/sql"
-	"gorm-note/utils"
 	"log"
 	"strconv"
 
@@ -43,32 +41,9 @@ func main() {
 	db.AutoMigrate(&Email{})
 	CreateUsers(db, UserCount)
 
-	// Named argument
-	// SELECT * FROM users WHERE name = 'user_0' LIMIT 1;
-	var user User
-	db.Where("name = @name", sql.Named("name", "user_0")).Take(&user)
-	utils.PrintRecord(user)
-	// SELECT * FROM users WHERE age = 12 LIMIT 1 ;
-	var user2 User
-	db.Where("age = @age ", map[string]interface{}{"age": 12}).Take(&user2)
-	utils.PrintRecord(user2)
-	// Named Argument with Raw SQL
-	var result []map[string]interface{}
-	db.Raw("SELECT id,name FROM users WHERE age = @age OR id = @id ", sql.Named("age", 15), sql.Named("id", 3)).
-		Scan(&result)
-	utils.PrintRecord(result)
-	var result2 map[string]interface{}
-	db.Raw("SELECT name,age FROM users WHERE id = @id OR age > @age", map[string]interface{}{"id": 2, "age": 13}).
-		Scan(&result2)
-	utils.PrintRecord(result2)
-	// struct
-	type NameArg struct {
-		Name string
-		Age  int
-	}
-	var result3 map[string]interface{}
-	db.Raw("SELECT * FROM users WHERE name = @Name AND age = @Age", NameArg{Name: "user_0", Age: 10}).Scan(&result3)
-	utils.PrintRecord(result3)
+	// DryRun
+	stmt := db.Session(&gorm.Session{DryRun: true}).Where("id = ?", 1).Take(&User{}).Statement
+	log.Printf("SQL: %s, VAL: %v", stmt.SQL.String(), stmt.Vars)
 }
 
 func CreateUsers(db *gorm.DB, num int) {

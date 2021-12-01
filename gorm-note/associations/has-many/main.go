@@ -16,7 +16,7 @@ type User struct {
 	ID         uint `gorm:"primaryKey"`
 	Name       string
 	Age        int
-	CreditCard CreditCard
+	CreditCard []CreditCard
 }
 
 type CreditCard struct {

@@ -9,20 +9,20 @@ import (
 )
 
 const (
-	DBName = "belongs-to.db"
+	DBName = "has-one.db"
 )
 
 type User struct {
-	ID        uint `gorm:"primaryKey"`
-	Name      string
-	Age       int
-	CompanyID uint
-	Company   Company
+	ID         uint `gorm:"primaryKey"`
+	Name       string
+	Age        int
+	CreditCard CreditCard
 }
 
-type Company struct {
-	ID   uint `gorm:"primaryKey"`
-	Name string
+type CreditCard struct {
+	ID     uint `gorm:"primaryKey"`
+	Number string
+	UserID uint
 }
 
 func main() {
@@ -45,5 +45,5 @@ func initializeDB() *gorm.DB {
 
 func createTables(db *gorm.DB) {
 	db.AutoMigrate(&User{})
-	db.AutoMigrate(&Company{})
+	db.AutoMigrate(&CreditCard{})
 }

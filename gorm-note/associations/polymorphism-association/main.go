@@ -9,20 +9,26 @@ import (
 )
 
 const (
-	DBName = "has-one.db"
+	DBName = "polymorphism-association.db"
 )
 
-type User struct {
-	ID         uint `gorm:"primaryKey"`
-	Name       string
-	Age        int
-	CreditCard CreditCard
+type Cat struct {
+	ID   uint `gorm:"primaryKey"`
+	Name string
+	Toys []Toy `gorm:"polymorphic:Owner;"`
 }
 
-type CreditCard struct {
-	ID     uint `gorm:"primaryKey"`
-	Number string
-	UserID uint
+type Dog struct {
+	ID   uint `gorm:"primaryKey"`
+	Name string
+	Toy  Toy `gorm:"polymorphic:Owner;"`
+}
+
+type Toy struct {
+	ID        uint `gorm:"primaryKey"`
+	Name      string
+	OwnerID   uint
+	OwnerType string
 }
 
 func main() {
@@ -31,6 +37,10 @@ func main() {
 	defer sqlDB.Close()
 
 	createTables(db)
+
+	// INSERT INTO cats (name) VALUES ('cat_1');
+	// INSERT INTO toys (name,owner_id,owner_type) VALUES ('toy_1','1','cats'),('toy_2','1','cats'),('toy_3','1','cats');
+	db.Create(&Cat{Name: "cat_1", Toys: []Toy{{Name: "toy_1"}, {Name: "toy_2"}, {Name: "toy_3"}}})
 }
 
 func initializeDB() *gorm.DB {
@@ -44,6 +54,7 @@ func initializeDB() *gorm.DB {
 }
 
 func createTables(db *gorm.DB) {
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&CreditCard{})
+	db.AutoMigrate(&Cat{})
+	db.AutoMigrate(&Dog{})
+	db.AutoMigrate(&Toy{})
 }
