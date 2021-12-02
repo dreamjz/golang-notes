@@ -42,12 +42,32 @@ func main() {
 	db.Model(&User{ID: 1}).Where("name IN ?", []string{"lang_0"}).Association("Languages").Find(&languages)
 	utils.PrintRecord(languages)
 	// append new association
+	//
 	db.Model(&User{ID: 1}).Association("Languages").Append(&Language{Name: "new_lang"})
+	// replace with new association
+	// INSERT INTO `languages` (`name`) VALUES ("replaced_lang") ON CONFLICT DO NOTHING RETURNING `id`
+	// INSERT INTO `user_languages` (`user_id`,`language_id`) VALUES (2,24) ON CONFLICT DO NOTHING
+	// DELETE FROM `user_languages` WHERE `user_languages`.`user_id` = 2 AND `user_languages`.`language_id` <> 24
+	db.Model(&User{ID: 2}).Association("Languages").Replace(&Language{Name: "replaced_lang"})
+	// delete association
+	// DELETE FROM `user_languages` WHERE `user_languages`.`user_id` = 2 AND `user_languages`.`language_id` = 26
+	db.Model(&User{ID: 2}).Association("Languages").Delete(&Language{ID: 26})
+	// clear associations
+	// DELETE FROM `user_languages` WHERE `user_languages`.`user_id` = 2
+	db.Model(&User{ID: 2}).Association("Languages").Clear()
+	// count associations
+	count := db.Model(&User{ID: 1}).Association("Languages").Count()
+	log.Println("Count:", count)
+	// Select Delete
+	// DELETE FROM `user_languages` WHERE `user_languages`.`user_id` = 2
+	// DELETE FROM `users` WHERE `users`.`id` = 2
+	db.Select("Languages").Delete(&User{ID: 2})
 }
 
 func initializeDB() *gorm.DB {
 	db, err := gorm.Open(sqlite.Open(DBName), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Info),
+		Logger:                                   logger.Default.LogMode(logger.Info),
+		DisableForeignKeyConstraintWhenMigrating: true,
 	})
 	if err != nil {
 		log.Fatalln("connect db failed: ", err.Error())
@@ -56,8 +76,7 @@ func initializeDB() *gorm.DB {
 }
 
 func createTables(db *gorm.DB) {
-	db.AutoMigrate(&User{})
-	db.AutoMigrate(&Language{})
+	db.AutoMigrate(&User{}, &Language{})
 }
 
 func createUsers(db *gorm.DB, num int) {

@@ -43,6 +43,10 @@ func main() {
 	// SELECT * FROM `credit_cards` WHERE `credit_cards`.`user_id` = 1
 	// INSERT INTO `credit_cards` (`number`,`user_id`) VALUES ("new_xxx",2) ON CONFLICT (`id`) DO UPDATE SET `user_id`=`excluded`.`user_id` RETURNING `id`
 	db.Model(&User{ID: 2}).Association("CreditCard").Append(&CreditCard{Number: "new_xxx"})
+	// INSERT INTO `credit_cards` (`number`,`user_id`) VALUES ("new_2nd_xxx",2) ON CONFLICT (`id`) DO UPDATE SET `user_id`=`excluded`.`user_id` RETURNING `id`
+	// UPDATE `credit_cards` SET `user_id`=NULL WHERE `credit_cards`.`id` <> 12 AND `credit_cards`.`user_id` = 2
+	db.Model(&User{ID: 2}).Association("CreditCard").Append(&CreditCard{Number: "new_2nd_xxx"})
+
 }
 
 func initializeDB() *gorm.DB {
