@@ -1,15 +1,8 @@
 package main
 
-import (
-	"github.com/golang-jwt/jwt/v4"
-)
+import "go-jwt-note/initialize"
 
-type Claims struct {
-	Username string
-	Password string
-	jwt.RegisteredClaims
-}
-
-func main(){
-
+func main() {
+	initialize.Redis()
+	initialize.Run()
 }

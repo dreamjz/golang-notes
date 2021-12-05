@@ -1,12 +1,15 @@
 package routers
 
-import "github.com/gin-gonic/gin"
+import (
+	v1 "go-jwt-note/api/v1"
 
-func InitializeUserRouter(router *gin.RouterGroup){
+	"github.com/gin-gonic/gin"
+)
+
+func InitializeUserRouter(router *gin.RouterGroup) {
 	userRouter := router.Group("/user")
 	{
-		router.GET("/welcome", func(context *gin.Context) {
-
-		})
+		userRouter.GET("/welcome", v1.Welcome)
+		userRouter.GET("/logout", v1.Logout)
 	}
 }
