@@ -9,12 +9,12 @@ import (
 type HelloService struct{}
 
 func (h *HelloService) Hello(request string, reply *string) error {
-	*reply = "hello " + request
+	*reply = "rpc_objects " + request
 	return nil
 }
 
 func main() {
-	rpc.RegisterName("HelloService", new(HelloService))
+	rpc.Register(new(HelloService))
 
 	listener, err := net.Listen("tcp", ":9090")
 	if err != nil {
