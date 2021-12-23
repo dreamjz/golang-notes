@@ -3,7 +3,7 @@ package tutorial;
 
 import "google/protobuf/timestamp.proto";
 
-option go_package = ".";
+option go_package = "../protobuffers";
 
 message Person {
   string name = 1;

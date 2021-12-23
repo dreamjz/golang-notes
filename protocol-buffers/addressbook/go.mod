@@ -1,4 +1,4 @@
-module address-book
+module github.com/dreamjz/golang-notes/protocol-buffers/address-book
 
 go 1.16
 
