@@ -22,11 +22,11 @@ func writePerson(w io.Writer, p *pb.Person) {
 	for _, pn := range p.Phones {
 		switch pn.Type {
 		case pb.Person_MOBILE:
-			fmt.Fprint(w, " Mobile phone #:")
+			fmt.Fprint(w, " Mobile phone #: ")
 		case pb.Person_HOME:
-			fmt.Fprint(w, " Home phone #:")
+			fmt.Fprint(w, " Home phone #: ")
 		case pb.Person_WORK:
-			fmt.Fprint(w, " Work phone #:")
+			fmt.Fprint(w, " Work phone #: ")
 		}
 		fmt.Fprintln(w, pn.Number)
 	}
