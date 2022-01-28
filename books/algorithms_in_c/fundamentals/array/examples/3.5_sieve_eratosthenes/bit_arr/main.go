@@ -8,7 +8,7 @@ import (
 
 const (
 	IntBitSize = int(unsafe.Sizeof(int(0)) * 8)
-	N          = 100000
+	N          = 10
 	Len        = (N / IntBitSize) + 1
 )
 
@@ -17,18 +17,26 @@ type BitMap []int
 func (b BitMap) SetBit(k int) {
 	i, position := calculateIndexAndOffset(k)
 	var flag uint = 1
+	// e.g. pos = 1
+	// 0000 | 0010 -> 0010
 	b[i] = b[i] | int(flag<<position)
 }
 
 func (b BitMap) ClearBit(k int) {
 	i, position := calculateIndexAndOffset(k)
 	var flag uint = 1
+	// e.g. pos = 1
+	// 1010 & ^(0010)
+	// -> 1010 & 1101 -> 1000
 	b[i] = b[i] & int(^(flag << position))
 }
 
 func (b BitMap) TestBit(k int) bool {
 	i, position := calculateIndexAndOffset(k)
 	var flag uint = 1
+	// e.g. pos = 1
+	// 1010 & 0010 -> 0010
+	// 1000 & 0010 -> 0000
 	return (b[i] & int(flag<<position)) != 0
 }
 
