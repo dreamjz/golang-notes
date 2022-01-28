@@ -8,7 +8,7 @@ import (
 
 const (
 	IntBitSize = int(unsafe.Sizeof(int(0)) * 8)
-	N          = 10
+	N          = 100000
 	Len        = (N / IntBitSize) + 1
 )
 
@@ -36,7 +36,7 @@ func (b BitMap) String() string {
 	var builder strings.Builder
 	builder.WriteString("[")
 	for i := range b {
-		builder.WriteString(fmt.Sprintf("\n\t%s,", SprintBit(b[i])))
+		builder.WriteString(fmt.Sprintf("\n\t%d: %s,", i, SprintBit(b[i])))
 	}
 	builder.WriteString("\n]")
 	return builder.String()
@@ -68,7 +68,7 @@ func main() {
 	for i := 2; i < N; i++ {
 		bitMap.SetBit(i)
 	}
-	fmt.Printf("Before: %s", bitMap)
+	//fmt.Printf("Before: %s", bitMap)
 	for i := 2; i < N; i++ {
 		for j := i; i*j < N; j++ {
 			bitMap.ClearBit(i * j)
@@ -81,7 +81,6 @@ func main() {
 		}
 	}
 	fmt.Println("]")
-
 	fmt.Printf("After: %s\n", bitMap)
 	fmt.Printf("Mem usage: [slice descriptor: %d bytes, total: %d bytes]", unsafe.Sizeof(bitMap), unsafe.Sizeof(bitMap)+unsafe.Sizeof([Len]int{}))
 }
