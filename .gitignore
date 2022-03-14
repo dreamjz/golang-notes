@@ -5,3 +5,6 @@ go.sum
 *.db
 **/logs/
 **/log/
+*.out
+*.test
+
