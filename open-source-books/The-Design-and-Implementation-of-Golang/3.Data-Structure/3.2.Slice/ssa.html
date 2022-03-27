@@ -1,0 +1,720 @@
+<html><head>
+<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+<style>
+
+body {
+    font-size: 14px;
+    font-family: Arial, sans-serif;
+}
+
+h1 {
+    font-size: 18px;
+    display: inline-block;
+    margin: 0 1em .5em 0;
+}
+
+#helplink {
+    display: inline-block;
+}
+
+#help {
+    display: none;
+}
+
+.stats {
+    font-size: 60%;
+}
+
+table {
+    border: 1px solid black;
+    table-layout: fixed;
+    width: 300px;
+}
+
+th, td {
+    border: 1px solid black;
+    overflow: hidden;
+    width: 400px;
+    vertical-align: top;
+    padding: 5px;
+}
+
+td > h2 {
+    cursor: pointer;
+    font-size: 120%;
+    margin: 5px 0px 5px 0px;
+}
+
+td.collapsed {
+    font-size: 12px;
+    width: 12px;
+    border: 1px solid white;
+    padding: 2px;
+    cursor: pointer;
+    background: #fafafa;
+}
+
+td.collapsed div {
+    text-align: right;
+    transform: rotate(180deg);
+    writing-mode: vertical-lr;
+    white-space: pre;
+}
+
+code, pre, .lines, .ast {
+    font-family: Menlo, monospace;
+    font-size: 12px;
+}
+
+pre {
+    -moz-tab-size: 4;
+    -o-tab-size:   4;
+    tab-size:      4;
+}
+
+.allow-x-scroll {
+    overflow-x: scroll;
+}
+
+.lines {
+    float: left;
+    overflow: hidden;
+    text-align: right;
+    margin-top: 7px;
+}
+
+.lines div {
+    padding-right: 10px;
+    color: gray;
+}
+
+div.line-number {
+    font-size: 12px;
+}
+
+.ast {
+    white-space: nowrap;
+}
+
+td.ssa-prog {
+    width: 600px;
+    word-wrap: break-word;
+}
+
+li {
+    list-style-type: none;
+}
+
+li.ssa-long-value {
+    text-indent: -2em;  /* indent wrapped lines */
+}
+
+li.ssa-value-list {
+    display: inline;
+}
+
+li.ssa-start-block {
+    padding: 0;
+    margin: 0;
+}
+
+li.ssa-end-block {
+    padding: 0;
+    margin: 0;
+}
+
+ul.ssa-print-func {
+    padding-left: 0;
+}
+
+li.ssa-start-block button {
+    padding: 0 1em;
+    margin: 0;
+    border: none;
+    display: inline;
+    font-size: 14px;
+    float: right;
+}
+
+button:hover {
+    background-color: #eee;
+    cursor: pointer;
+}
+
+dl.ssa-gen {
+    padding-left: 0;
+}
+
+dt.ssa-prog-src {
+    padding: 0;
+    margin: 0;
+    float: left;
+    width: 4em;
+}
+
+dd.ssa-prog {
+    padding: 0;
+    margin-right: 0;
+    margin-left: 4em;
+}
+
+.dead-value {
+    color: gray;
+}
+
+.dead-block {
+    opacity: 0.5;
+}
+
+.depcycle {
+    font-style: italic;
+}
+
+.line-number {
+    font-size: 11px;
+}
+
+.no-line-number {
+    font-size: 11px;
+    color: gray;
+}
+
+.zoom {
+	position: absolute;
+	float: left;
+	white-space: nowrap;
+	background-color: #eee;
+}
+
+.zoom a:link, .zoom a:visited  {
+    text-decoration: none;
+    color: blue;
+    font-size: 16px;
+    padding: 4px 2px;
+}
+
+svg {
+    cursor: default;
+    outline: 1px solid #eee;
+    width: 100%;
+}
+
+body.darkmode {
+    background-color: rgb(21, 21, 21);
+    color: rgb(230, 255, 255);
+    opacity: 100%;
+}
+
+td.darkmode {
+    background-color: rgb(21, 21, 21);
+    border: 1px solid gray;
+}
+
+body.darkmode table, th {
+    border: 1px solid gray;
+}
+
+body.darkmode text {
+    fill: white;
+}
+
+body.darkmode svg polygon:first-child {
+    fill: rgb(21, 21, 21);
+}
+
+.highlight-aquamarine     { background-color: aquamarine; color: black; }
+.highlight-coral          { background-color: coral; color: black; }
+.highlight-lightpink      { background-color: lightpink; color: black; }
+.highlight-lightsteelblue { background-color: lightsteelblue; color: black; }
+.highlight-palegreen      { background-color: palegreen; color: black; }
+.highlight-skyblue        { background-color: skyblue; color: black; }
+.highlight-lightgray      { background-color: lightgray; color: black; }
+.highlight-yellow         { background-color: yellow; color: black; }
+.highlight-lime           { background-color: lime; color: black; }
+.highlight-khaki          { background-color: khaki; color: black; }
+.highlight-aqua           { background-color: aqua; color: black; }
+.highlight-salmon         { background-color: salmon; color: black; }
+
+/* Ensure all dead values/blocks continue to have gray font color in dark mode with highlights */
+.dead-value span.highlight-aquamarine,
+.dead-block.highlight-aquamarine,
+.dead-value span.highlight-coral,
+.dead-block.highlight-coral,
+.dead-value span.highlight-lightpink,
+.dead-block.highlight-lightpink,
+.dead-value span.highlight-lightsteelblue,
+.dead-block.highlight-lightsteelblue,
+.dead-value span.highlight-palegreen,
+.dead-block.highlight-palegreen,
+.dead-value span.highlight-skyblue,
+.dead-block.highlight-skyblue,
+.dead-value span.highlight-lightgray,
+.dead-block.highlight-lightgray,
+.dead-value span.highlight-yellow,
+.dead-block.highlight-yellow,
+.dead-value span.highlight-lime,
+.dead-block.highlight-lime,
+.dead-value span.highlight-khaki,
+.dead-block.highlight-khaki,
+.dead-value span.highlight-aqua,
+.dead-block.highlight-aqua,
+.dead-value span.highlight-salmon,
+.dead-block.highlight-salmon {
+    color: gray;
+}
+
+.outline-blue           { outline: #2893ff solid 2px; }
+.outline-red            { outline: red solid 2px; }
+.outline-blueviolet     { outline: blueviolet solid 2px; }
+.outline-darkolivegreen { outline: darkolivegreen solid 2px; }
+.outline-fuchsia        { outline: fuchsia solid 2px; }
+.outline-sienna         { outline: sienna solid 2px; }
+.outline-gold           { outline: gold solid 2px; }
+.outline-orangered      { outline: orangered solid 2px; }
+.outline-teal           { outline: teal solid 2px; }
+.outline-maroon         { outline: maroon solid 2px; }
+.outline-black          { outline: black solid 2px; }
+
+ellipse.outline-blue           { stroke-width: 2px; stroke: #2893ff; }
+ellipse.outline-red            { stroke-width: 2px; stroke: red; }
+ellipse.outline-blueviolet     { stroke-width: 2px; stroke: blueviolet; }
+ellipse.outline-darkolivegreen { stroke-width: 2px; stroke: darkolivegreen; }
+ellipse.outline-fuchsia        { stroke-width: 2px; stroke: fuchsia; }
+ellipse.outline-sienna         { stroke-width: 2px; stroke: sienna; }
+ellipse.outline-gold           { stroke-width: 2px; stroke: gold; }
+ellipse.outline-orangered      { stroke-width: 2px; stroke: orangered; }
+ellipse.outline-teal           { stroke-width: 2px; stroke: teal; }
+ellipse.outline-maroon         { stroke-width: 2px; stroke: maroon; }
+ellipse.outline-black          { stroke-width: 2px; stroke: black; }
+
+/* Capture alternative for outline-black and ellipse.outline-black when in dark mode */
+body.darkmode .outline-black        { outline: gray solid 2px; }
+body.darkmode ellipse.outline-black { outline: gray solid 2px; }
+
+</style>
+
+<script type="text/javascript">
+
+// Contains phase names which are expanded by default. Other columns are collapsed.
+let expandedDefault = [
+    "start",
+    "deadcode",
+    "opt",
+    "lower",
+    "late-deadcode",
+    "regalloc",
+    "genssa",
+];
+if (history.state === null) {
+    history.pushState({expandedDefault}, "", location.href);
+}
+
+// ordered list of all available highlight colors
+var highlights = [
+    "highlight-aquamarine",
+    "highlight-coral",
+    "highlight-lightpink",
+    "highlight-lightsteelblue",
+    "highlight-palegreen",
+    "highlight-skyblue",
+    "highlight-lightgray",
+    "highlight-yellow",
+    "highlight-lime",
+    "highlight-khaki",
+    "highlight-aqua",
+    "highlight-salmon"
+];
+
+// state: which value is highlighted this color?
+var highlighted = {};
+for (var i = 0; i < highlights.length; i++) {
+    highlighted[highlights[i]] = "";
+}
+
+// ordered list of all available outline colors
+var outlines = [
+    "outline-blue",
+    "outline-red",
+    "outline-blueviolet",
+    "outline-darkolivegreen",
+    "outline-fuchsia",
+    "outline-sienna",
+    "outline-gold",
+    "outline-orangered",
+    "outline-teal",
+    "outline-maroon",
+    "outline-black"
+];
+
+// state: which value is outlined this color?
+var outlined = {};
+for (var i = 0; i < outlines.length; i++) {
+    outlined[outlines[i]] = "";
+}
+
+window.onload = function() {
+    if (history.state !== null) {
+        expandedDefault = history.state.expandedDefault;
+    }
+    if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        toggleDarkMode();
+        document.getElementById("dark-mode-button").checked = true;
+    }
+
+    var ssaElemClicked = function(elem, event, selections, selected) {
+        event.stopPropagation();
+
+        // find all values with the same name
+        var c = elem.classList.item(0);
+        var x = document.getElementsByClassName(c);
+
+        // if selected, remove selections from all of them
+        // otherwise, attempt to add
+
+        var remove = "";
+        for (var i = 0; i < selections.length; i++) {
+            var color = selections[i];
+            if (selected[color] == c) {
+                remove = color;
+                break;
+            }
+        }
+
+        if (remove != "") {
+            for (var i = 0; i < x.length; i++) {
+                x[i].classList.remove(remove);
+            }
+            selected[remove] = "";
+            return;
+        }
+
+        // we're adding a selection
+        // find first available color
+        var avail = "";
+        for (var i = 0; i < selections.length; i++) {
+            var color = selections[i];
+            if (selected[color] == "") {
+                avail = color;
+                break;
+            }
+        }
+        if (avail == "") {
+            alert("out of selection colors; go add more");
+            return;
+        }
+
+        // set that as the selection
+        for (var i = 0; i < x.length; i++) {
+            x[i].classList.add(avail);
+        }
+        selected[avail] = c;
+    };
+
+    var ssaValueClicked = function(event) {
+        ssaElemClicked(this, event, highlights, highlighted);
+    };
+
+    var ssaBlockClicked = function(event) {
+        ssaElemClicked(this, event, outlines, outlined);
+    };
+
+    var ssavalues = document.getElementsByClassName("ssa-value");
+    for (var i = 0; i < ssavalues.length; i++) {
+        ssavalues[i].addEventListener('click', ssaValueClicked);
+    }
+
+    var ssalongvalues = document.getElementsByClassName("ssa-long-value");
+    for (var i = 0; i < ssalongvalues.length; i++) {
+        // don't attach listeners to li nodes, just the spans they contain
+        if (ssalongvalues[i].nodeName == "SPAN") {
+            ssalongvalues[i].addEventListener('click', ssaValueClicked);
+        }
+    }
+
+    var ssablocks = document.getElementsByClassName("ssa-block");
+    for (var i = 0; i < ssablocks.length; i++) {
+        ssablocks[i].addEventListener('click', ssaBlockClicked);
+    }
+
+    var lines = document.getElementsByClassName("line-number");
+    for (var i = 0; i < lines.length; i++) {
+        lines[i].addEventListener('click', ssaValueClicked);
+    }
+
+
+    function toggler(phase) {
+        return function() {
+            toggle_cell(phase+'-col');
+            toggle_cell(phase+'-exp');
+            const i = expandedDefault.indexOf(phase);
+            if (i !== -1) {
+                expandedDefault.splice(i, 1);
+            } else {
+                expandedDefault.push(phase);
+            }
+            history.pushState({expandedDefault}, "", location.href);
+        };
+    }
+
+    function toggle_cell(id) {
+        var e = document.getElementById(id);
+        if (e.style.display == 'table-cell') {
+            e.style.display = 'none';
+        } else {
+            e.style.display = 'table-cell';
+        }
+    }
+
+    // Go through all columns and collapse needed phases.
+    const td = document.getElementsByTagName("td");
+    for (let i = 0; i < td.length; i++) {
+        const id = td[i].id;
+        const phase = id.substr(0, id.length-4);
+        let show = expandedDefault.indexOf(phase) !== -1
+
+        // If show == false, check to see if this is a combined column (multiple phases).
+        // If combined, check each of the phases to see if they are in our expandedDefaults.
+        // If any are found, that entire combined column gets shown.
+        if (!show) {
+            const combined = phase.split('--+--');
+            const len = combined.length;
+            if (len > 1) {
+                for (let i = 0; i < len; i++) {
+                    const num = expandedDefault.indexOf(combined[i]);
+                    if (num !== -1) {
+                        expandedDefault.splice(num, 1);
+                        if (expandedDefault.indexOf(phase) === -1) {
+                            expandedDefault.push(phase);
+                            show = true;
+                        }
+                    }
+                }
+            }
+        }
+        if (id.endsWith("-exp")) {
+            const h2Els = td[i].getElementsByTagName("h2");
+            const len = h2Els.length;
+            if (len > 0) {
+                for (let i = 0; i < len; i++) {
+                    h2Els[i].addEventListener('click', toggler(phase));
+                }
+            }
+        } else {
+            td[i].addEventListener('click', toggler(phase));
+        }
+        if (id.endsWith("-col") && show || id.endsWith("-exp") && !show) {
+            td[i].style.display = 'none';
+            continue;
+        }
+        td[i].style.display = 'table-cell';
+    }
+
+    // find all svg block nodes, add their block classes
+    var nodes = document.querySelectorAll('*[id^="graph_node_"]');
+    for (var i = 0; i < nodes.length; i++) {
+    	var node = nodes[i];
+    	var name = node.id.toString();
+    	var block = name.substring(name.lastIndexOf("_")+1);
+    	node.classList.remove("node");
+    	node.classList.add(block);
+        node.addEventListener('click', ssaBlockClicked);
+        var ellipse = node.getElementsByTagName('ellipse')[0];
+        ellipse.classList.add(block);
+        ellipse.addEventListener('click', ssaBlockClicked);
+    }
+
+    // make big graphs smaller
+    var targetScale = 0.5;
+    var nodes = document.querySelectorAll('*[id^="svg_graph_"]');
+    // TODO: Implement smarter auto-zoom using the viewBox attribute
+    // and in case of big graphs set the width and height of the svg graph to
+    // maximum allowed.
+    for (var i = 0; i < nodes.length; i++) {
+    	var node = nodes[i];
+    	var name = node.id.toString();
+    	var phase = name.substring(name.lastIndexOf("_")+1);
+    	var gNode = document.getElementById("g_graph_"+phase);
+    	var scale = gNode.transform.baseVal.getItem(0).matrix.a;
+    	if (scale > targetScale) {
+    		node.width.baseVal.value *= targetScale / scale;
+    		node.height.baseVal.value *= targetScale / scale;
+    	}
+    }
+};
+
+function toggle_visibility(id) {
+    var e = document.getElementById(id);
+    if (e.style.display == 'block') {
+        e.style.display = 'none';
+    } else {
+        e.style.display = 'block';
+    }
+}
+
+function hideBlock(el) {
+    var es = el.parentNode.parentNode.getElementsByClassName("ssa-value-list");
+    if (es.length===0)
+        return;
+    var e = es[0];
+    if (e.style.display === 'block' || e.style.display === '') {
+        e.style.display = 'none';
+        el.innerHTML = '+';
+    } else {
+        e.style.display = 'block';
+        el.innerHTML = '-';
+    }
+}
+
+// TODO: scale the graph with the viewBox attribute.
+function graphReduce(id) {
+    var node = document.getElementById(id);
+    if (node) {
+    		node.width.baseVal.value *= 0.9;
+    		node.height.baseVal.value *= 0.9;
+    }
+    return false;
+}
+
+function graphEnlarge(id) {
+    var node = document.getElementById(id);
+    if (node) {
+    		node.width.baseVal.value *= 1.1;
+    		node.height.baseVal.value *= 1.1;
+    }
+    return false;
+}
+
+function makeDraggable(event) {
+    var svg = event.target;
+    if (window.PointerEvent) {
+        svg.addEventListener('pointerdown', startDrag);
+        svg.addEventListener('pointermove', drag);
+        svg.addEventListener('pointerup', endDrag);
+        svg.addEventListener('pointerleave', endDrag);
+    } else {
+        svg.addEventListener('mousedown', startDrag);
+        svg.addEventListener('mousemove', drag);
+        svg.addEventListener('mouseup', endDrag);
+        svg.addEventListener('mouseleave', endDrag);
+    }
+
+    var point = svg.createSVGPoint();
+    var isPointerDown = false;
+    var pointerOrigin;
+    var viewBox = svg.viewBox.baseVal;
+
+    function getPointFromEvent (event) {
+        point.x = event.clientX;
+        point.y = event.clientY;
+
+        // We get the current transformation matrix of the SVG and we inverse it
+        var invertedSVGMatrix = svg.getScreenCTM().inverse();
+        return point.matrixTransform(invertedSVGMatrix);
+    }
+
+    function startDrag(event) {
+        isPointerDown = true;
+        pointerOrigin = getPointFromEvent(event);
+    }
+
+    function drag(event) {
+        if (!isPointerDown) {
+            return;
+        }
+        event.preventDefault();
+
+        var pointerPosition = getPointFromEvent(event);
+        viewBox.x -= (pointerPosition.x - pointerOrigin.x);
+        viewBox.y -= (pointerPosition.y - pointerOrigin.y);
+    }
+
+    function endDrag(event) {
+        isPointerDown = false;
+    }
+}
+
+function toggleDarkMode() {
+    document.body.classList.toggle('darkmode');
+
+    // Collect all of the "collapsed" elements and apply dark mode on each collapsed column
+    const collapsedEls = document.getElementsByClassName('collapsed');
+    const len = collapsedEls.length;
+
+    for (let i = 0; i < len; i++) {
+        collapsedEls[i].classList.toggle('darkmode');
+    }
+
+    // Collect and spread the appropriate elements from all of the svgs on the page into one array
+    const svgParts = [
+        ...document.querySelectorAll('path'),
+        ...document.querySelectorAll('ellipse'),
+        ...document.querySelectorAll('polygon'),
+    ];
+
+    // Iterate over the svgParts specifically looking for white and black fill/stroke to be toggled.
+    // The verbose conditional is intentional here so that we do not mutate any svg path, ellipse, or polygon that is of any color other than white or black.
+    svgParts.forEach(el => {
+        if (el.attributes.stroke.value === 'white') {
+            el.attributes.stroke.value = 'black';
+        } else if (el.attributes.stroke.value === 'black') {
+            el.attributes.stroke.value = 'white';
+        }
+        if (el.attributes.fill.value === 'white') {
+            el.attributes.fill.value = 'black';
+        } else if (el.attributes.fill.value === 'black') {
+            el.attributes.fill.value = 'white';
+        }
+    });
+}
+
+</script>
+
+</head><body><h1>newSlice</h1>
+<a href="#" onclick="toggle_visibility('help');return false;" id="helplink">help</a>
+<div id="help">
+
+<p>
+Click on a value or block to toggle highlighting of that value/block
+and its uses.  (Values and blocks are highlighted by ID, and IDs of
+dead items may be reused, so not all highlights necessarily correspond
+to the clicked item.)
+</p>
+
+<p>
+Faded out values and blocks are dead code that has not been eliminated.
+</p>
+
+<p>
+Values printed in italics have a dependency cycle.
+</p>
+
+<p>
+<b>CFG</b>: Dashed edge is for unlikely branches. Blue color is for backward edges.
+Edge with a dot means that this edge follows the order in which blocks were laidout.
+</p>
+
+</div>
+<label for="dark-mode-button" style="margin-left: 15px; cursor: pointer;">darkmode</label>
+<input type="checkbox" onclick="toggleDarkMode();" id="dark-mode-button" style="cursor: pointer" />
+<table><tr><td id="sources-col" class="collapsed"><div>sources</div></td><td id="sources-exp" class="allow-x-scroll"><h2>sources</h2><div class="lines" style="width: 8%"><div>&nbsp;</div><div>&nbsp;</div><div class="l3 line-number">3</div><div class="l4 line-number">4</div><div class="l5 line-number">5</div><div class="l6 line-number">6</div><div class="l7 line-number">7</div></div><div style="width: 92%"><pre><div>&nbsp;</div><div><strong>/home/kesa/MyDocuments/MyGitRepo/golang-notes/open-source-books/The-Design-and-Implementation-of-Golang/3.Data-Structure/3.2.Slice/slice.go</strong></div><div class="l3 line-number">func newSlice() []int {</div><div class="l4 line-number">	arr := [3]int{1, 2, 3}</div><div class="l5 line-number">	slice := arr[0:1]</div><div class="l6 line-number">	return slice</div><div class="l7 line-number">}</div></pre></div></td>
+<td id="AST-col" class="collapsed"><div>AST</div></td><td id="AST-exp" class="allow-x-scroll"><h2>AST</h2><div><div class="ast"><b>buildssa-enter</b></div><div class="l3 line-number ast">.   AS l(3)</div><div class="l3 line-number ast">.   .   NAME-slice.~r0 g(1) l(3) x(0) class(PPARAMOUT) esc(no) SLICE-[]int</div><div class="ast"><b>buildssa-body</b></div><div class="l4 line-number ast">.   AS l(4) colas(true) tc(1)</div><div class="l4 line-number ast">.   .   NAME-slice.&amp;arr l(4) x(0) class(PAUTO) esc(N) tc(1) assigned nonnil used PTR-*[3]int</div><div class="l4 line-number ast">.   .   NEWOBJ l(4) tc(1) nonnil PTR-*[3]int</div><div class="l4 line-number ast">.   .   .   ADDR l(4) tc(1) PTR-*uint8</div><div class="ast">.   .   .   .   NAME-type.[3]int x(0) class(PEXTERN) tc(1) uint8</div><div class="ast">&nbsp;</div><div class="l4 line-number ast">.   AS l(4) colas(true) tc(1) hascall</div><div class="l4 line-number ast">.   .   DEREF l(4) tc(1) hascall ARRAY-[3]int</div><div class="l4 line-number ast">.   .   .   NAME-slice.&amp;arr l(4) x(0) class(PAUTO) esc(N) tc(1) assigned nonnil used PTR-*[3]int</div><div class="l4 line-number ast">.   .   NAME-slice..stmp_0 l(4) x(0) class(PEXTERN) tc(1) assigned used ARRAY-[3]int</div><div class="ast">&nbsp;</div><div class="l5 line-number ast">.   DCL l(5)</div><div class="l5 line-number ast">.   .   NAME-slice.slice g(3) l(5) x(0) class(PAUTO) esc(no) tc(1) used SLICE-[]int</div><div class="ast">&nbsp;</div><div class="l5 line-number ast">.   AS l(5) colas(true) tc(1) hascall</div><div class="l5 line-number ast">.   .   NAME-slice.slice g(3) l(5) x(0) class(PAUTO) esc(no) tc(1) used SLICE-[]int</div><div class="l5 line-number ast">.   .   SLICEARR l(5) tc(1) hascall SLICE-[]int</div><div class="l5 line-number ast">.   .   .   ADDR l(5) tc(1) implicit(true) hascall PTR-*[3]int</div><div class="l5 line-number ast">.   .   .   .   DEREF l(5) tc(1) hascall ARRAY-[3]int</div><div class="l4 line-number ast">.   .   .   .   .   NAME-slice.&amp;arr l(4) x(0) class(PAUTO) esc(N) tc(1) assigned nonnil used PTR-*[3]int</div><div class="ast">.   .   SLICEARR-list&lt;N&gt;</div><div class="ast">&nbsp;</div><div class="l5 line-number ast">.   .   .   LITERAL-1 l(5) tc(1) int</div><div class="ast">&nbsp;</div><div class="l6 line-number ast">.   RETURN l(6) tc(1)</div><div class="ast">.   RETURN-list</div><div class="l6 line-number ast">.   .   AS l(6) tc(1)</div><div class="l3 line-number ast">.   .   .   NAME-slice.~r0 g(1) l(3) x(0) class(PPARAMOUT) esc(no) SLICE-[]int</div><div class="l5 line-number ast">.   .   .   NAME-slice.slice g(3) l(5) x(0) class(PAUTO) esc(no) tc(1) used SLICE-[]int</div><div class="ast"><b>buildssa-exit</b></div><div class="ast">&nbsp;</div></div></td>
+<td id="start-col" class="collapsed"><div>start</div></td><td id="start-exp" class="hash-"><h2>start</h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value dead-value"><span class="v5 ssa-long-value"><span class="v5 ssa-value">v5</span> <span class="no-line-number">(?)</span> = ConstSlice &lt;[]int&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(4)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(5)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;*int&gt; <span class="v9 ssa-value">v9</span></span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [0]</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span></span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">If</span> <span class="v17 ssa-value">v17</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="b3 ssa-block">b3</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span></span></li></ul></li><li class="ssa-end-block"><span class="b2 ssa-block">If</span> <span class="v20 ssa-value">v20</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="b5 ssa-block">b5</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b3 ssa-print-func "><li class="ssa-start-block"><span class="b3 ssa-block">b3</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v18 ssa-long-value"><span class="v18 ssa-value">v18</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [2] <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> <span class="v18 ssa-value">v18</span></span></li></ul></li><li class="ssa-end-block"><span class="b3 ssa-block">Exit</span> <span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v15 ssa-value">v15</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v14 ssa-value">v14</span> <span class="v23 ssa-value">v23</span> <span class="v24 ssa-value">v24</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v26 ssa-long-value"><span class="v26 ssa-value">v26</span> <span class="l6 line-number">(<s>6</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v26 ssa-value">v26</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(6)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><ul class="b5 ssa-print-func "><li class="ssa-start-block"><span class="b5 ssa-block">b5</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v21 ssa-long-value"><span class="v21 ssa-value">v21</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [6] <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span> <span class="v21 ssa-value">v21</span></span></li></ul></li><li class="ssa-end-block"><span class="b5 ssa-block">Exit</span> <span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="number-lines--+--early-phielim-col" class="collapsed"><div>number lines  +  early phielim</div></td><td id="number-lines--+--early-phielim-exp" class="hash-1b281c0c8f513a59ff5dc7afd2b305497a30b252573f05e57ac18140d6c2f30e"><h2>number lines <span class="stats">[21321 ns]</span></h2><h2>early phielim <span class="stats">[2055 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value dead-value"><span class="v5 ssa-long-value"><span class="v5 ssa-value">v5</span> <span class="no-line-number">(?)</span> = ConstSlice &lt;[]int&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;*int&gt; <span class="v9 ssa-value">v9</span></span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [0]</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span></span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">If</span> <span class="v17 ssa-value">v17</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="b3 ssa-block">b3</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span></span></li></ul></li><li class="ssa-end-block"><span class="b2 ssa-block">If</span> <span class="v20 ssa-value">v20</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="b5 ssa-block">b5</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b3 ssa-print-func "><li class="ssa-start-block"><span class="b3 ssa-block">b3</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v18 ssa-long-value"><span class="v18 ssa-value">v18</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [2] <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b3 ssa-block">Exit</span> <span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v15 ssa-value">v15</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v23 ssa-value">v23</span> <span class="v24 ssa-value">v24</span> (slice[[]int])</span></li><li class="ssa-long-value dead-value"><span class="v26 ssa-long-value"><span class="v26 ssa-value">v26</span> <span class="l6 line-number">(<s>6</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><ul class="b5 ssa-print-func "><li class="ssa-start-block"><span class="b5 ssa-block">b5</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v21 ssa-long-value"><span class="v21 ssa-value">v21</span> <span class="l5 line-number">(<s>5</s>)</span> = Copy &lt;mem&gt; <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [6] <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b5 ssa-block">Exit</span> <span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="early-copyelim--+--early-deadcode-col" class="collapsed"><div>early copyelim  +  early deadcode</div></td><td id="early-copyelim--+--early-deadcode-exp" class="hash-940041e2a3c4c23f483f05f931e04e604bbdd8ae588f073dbb696e503654780b"><h2>early copyelim <span class="stats">[2377 ns]</span></h2><h2>early deadcode <span class="stats">[46559 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [0]</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span></span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">If</span> <span class="v17 ssa-value">v17</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="b3 ssa-block">b3</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="l5 line-number">(5)</span> = IsSliceInBounds &lt;bool&gt; <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span></span></li></ul></li><li class="ssa-end-block"><span class="b2 ssa-block">If</span> <span class="v20 ssa-value">v20</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="b5 ssa-block">b5</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b3 ssa-print-func "><li class="ssa-start-block"><span class="b3 ssa-block">b3</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [2] <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b3 ssa-block">Exit</span> <span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l5 line-number">(5)</span> = Sub64 &lt;int&gt; <span class="v15 ssa-value">v15</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v23 ssa-value">v23</span> <span class="v24 ssa-value">v24</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><ul class="b5 ssa-print-func "><li class="ssa-start-block"><span class="b5 ssa-block">b5</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [6] <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b5 ssa-block">Exit</span> <span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="short-circuit--+--decompose-user--+--pre-opt-deadcode--+--opt-col" class="collapsed"><div>short circuit  +  decompose user  +  pre-opt deadcode  +  opt</div></td><td id="short-circuit--+--decompose-user--+--pre-opt-deadcode--+--opt-exp" class="hash-fe6f7d79734d5c5bb62f1a9524e48f8b9b9d79e239589b203329df069e599f51"><h2>short circuit <span class="stats">[7199 ns]</span></h2><h2>decompose user <span class="stats">[860 ns]</span></h2><h2>pre-opt deadcode <span class="stats">[5284 ns]</span></h2><h2>opt <span class="stats">[5888226 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value dead-value"><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value dead-value"><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [0]</span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">First</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="b3 ssa-block">b3</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span></li><li class="ssa-end-block"><span class="b2 ssa-block">First</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="b5 ssa-block">b5</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b3 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b3 ssa-block">b3</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [2] <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b3 ssa-block">Exit</span> <span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l5 line-number">(5)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l5 line-number">(5)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v23 ssa-value">v23</span> <span class="v24 ssa-value">v24</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><ul class="b5 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b5 ssa-block">b5</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [6] <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b5 ssa-block">Exit</span> <span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="zero-arg-cse-col" class="collapsed"><div>zero arg cse</div></td><td id="zero-arg-cse-exp" class="hash-6c60a8166d8046d664878dc79e61643f88dbd2f03b1c1007f9ecb1bb31172cf7"><h2>zero arg cse <span class="stats">[6410 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value dead-value"><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [0]</span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">First</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="b3 ssa-block">b3</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span></li><li class="ssa-end-block"><span class="b2 ssa-block">First</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="b5 ssa-block">b5</span> (likely) <span class="l5 line-number">(5)</span></li></ul><ul class="b3 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b3 ssa-block">b3</span>: &#8592; <span class="b1 ssa-block">b1</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [2] <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b3 ssa-block">Exit</span> <span class="v19 ssa-value">v19</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l5 line-number">(5)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value dead-value"><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l5 line-number">(5)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><ul class="b5 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b5 ssa-block">b5</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span> = PanicBounds &lt;mem&gt; [6] <span class="v16 ssa-value">v16</span> <span class="v12 ssa-value">v12</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b5 ssa-block">Exit</span> <span class="v22 ssa-value">v22</span> <span class="l5 line-number">(5)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="opt-deadcode-col" class="collapsed"><div>opt deadcode</div></td><td id="opt-deadcode-exp" class="hash-b264dfa8a7e5b5995885e0f5486d6d5851ba0a3f4a2f1da11e993872892418b3"><h2>opt deadcode <span class="stats">[8844 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">Plain</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span></li><li class="ssa-end-block"><span class="b2 ssa-block">Plain</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="generic-cse--+--phiopt--+--gcse-deadcode--+--nilcheckelim-col" class="collapsed"><div>generic cse  +  phiopt  +  gcse deadcode  +  nilcheckelim</div></td><td id="generic-cse--+--phiopt--+--gcse-deadcode--+--nilcheckelim-exp" class="hash-a6c48b9bddc1ffbba4f2f17d20f382270dcaef31108e3898456c697068f19641"><h2>generic cse <span class="stats">[24814 ns]</span></h2><h2>phiopt <span class="stats">[440 ns]</span></h2><h2>gcse deadcode <span class="stats">[3721 ns]</span></h2><h2>nilcheckelim <span class="stats">[7528 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">Plain</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span></li><li class="ssa-end-block"><span class="b2 ssa-block">Plain</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="prove-col" class="collapsed"><div>prove</div></td><td id="prove-exp" class="hash-60d445f16b4d44f98c93e654c0db09ed9d668faabcdec0de3e82976c0d407188"><h2>prove <span class="stats">[37203 ns]</span></h2><code><ul class="b1 ssa-print-func "><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="no-line-number">(?)</span> = Const64 &lt;int64&gt; [0]</span></li></ul></li><li class="ssa-end-block"><span class="b1 ssa-block">Plain</span> &#8594; <span class="b2 ssa-block">b2</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func "><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>: &#8592; <span class="b1 ssa-block">b1</span></li><li class="ssa-end-block"><span class="b2 ssa-block">Plain</span> &#8594; <span class="b4 ssa-block">b4</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>: &#8592; <span class="b2 ssa-block">b2</span><button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="early-fuse-col" class="collapsed"><div>early fuse</div></td><td id="early-fuse-exp" class="hash-0af9d4c5594983d95c8d282189d8342fd63f342e8ecd162e16f081e7cc557fbf"><h2>early fuse <span class="stats">[1784 ns]</span></h2><code><ul class="b1 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:</li><li class="ssa-end-block"><span class="b1 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>:</li><li class="ssa-end-block"><span class="b2 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1]</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3]</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (&arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="no-line-number">(?)</span> = Const64 &lt;int64&gt; [0]</span></li><li class="ssa-long-value "><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span> (slice[[]int])</span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {[]int} <span class="v4 ssa-value">v4</span> <span class="v25 ssa-value">v25</span> <span class="v27 ssa-value">v27</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice[[]int]: <span class="v25 ssa-value">v25</span> </li></code></td>
+<td id="decompose-builtin-col" class="collapsed"><div>decompose builtin</div></td><td id="decompose-builtin-exp" class="hash-89ba94bf1d1c7c5d14ef848835d2bd33d77aabc1854d3ddf43cfd318e3633741"><h2>decompose builtin <span class="stats">[809032 ns]</span></h2><code><ul class="b1 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:</li><li class="ssa-end-block"><span class="b1 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>:</li><li class="ssa-end-block"><span class="b2 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1] (slice.len[int])</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3] (slice.cap[int])</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticLECall &lt;*[3]int,mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = SelectN &lt;*[3]int&gt; [0] <span class="v7 ssa-value">v7</span> (slice.ptr[*int], &arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = SelectN &lt;mem&gt; [1] <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v8 ssa-value">v8</span></span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="no-line-number">(?)</span> = Const64 &lt;int64&gt; [0]</span></li><li class="ssa-long-value dead-value"><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [16] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [8] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {*int} <span class="v4 ssa-value">v4</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v19 ssa-value">v19</span> <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v24 ssa-value">v24</span> <span class="v15 ssa-value">v15</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.len[int]: <span class="v12 ssa-value">v12</span> </li><li>name slice.cap[int]: <span class="v15 ssa-value">v15</span> </li></code></td>
+<td id="expand-calls-col" class="collapsed"><div>expand calls</div></td><td id="expand-calls-exp" class="hash-a282ac53fdc36ad9840ee2b71e836551740a8a6122d86ff37917b1ec97f2d6fc"><h2>expand calls <span class="stats">[16745 ns]</span></h2><code><ul class="b1 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:</li><li class="ssa-end-block"><span class="b1 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>:</li><li class="ssa-end-block"><span class="b2 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1] (slice.len[int])</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3] (slice.cap[int])</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value dead-value"><span class="v8 ssa-long-value"><span class="v8 ssa-value">v8</span> <span class="l4 line-number">(4)</span> = OpInvalid &lt;*[3]int,mem&gt;</span></li><li class="ssa-long-value dead-value"><span class="v22 ssa-long-value"><span class="v22 ssa-value">v22</span> <span class="no-line-number">(?)</span> = Const64 &lt;int64&gt; [0]</span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [16] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [8] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**uint8&gt; [0] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = Store &lt;mem&gt; {*uint8} <span class="v20 ssa-value">v20</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v21 ssa-long-value"><span class="v21 ssa-value">v21</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**[3]int&gt; [8] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticCall &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = Load &lt;*[3]int&gt; <span class="v21 ssa-value">v21</span> <span class="v7 ssa-value">v7</span> (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l5 line-number">(<b>+5</b>)</span> = NilCheck &lt;void&gt; <span class="v9 ssa-value">v9</span> <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value dead-value"><span class="v25 ssa-long-value"><span class="v25 ssa-value">v25</span> <span class="l5 line-number">(5)</span> = SliceMake &lt;[]int&gt; <span class="v9 ssa-value">v9</span> <span class="v12 ssa-value">v12</span> <span class="v15 ssa-value">v15</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {*int} <span class="v4 ssa-value">v4</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v19 ssa-value">v19</span> <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v24 ssa-value">v24</span> <span class="v15 ssa-value">v15</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.len[int]: <span class="v12 ssa-value">v12</span> </li><li>name slice.cap[int]: <span class="v15 ssa-value">v15</span> </li></code></td>
+<td id="softfloat--+--late-opt-col" class="collapsed"><div>softfloat  +  late opt</div></td><td id="softfloat--+--late-opt-exp" class="hash-0b34de0af948bb70e219e634798f261ba691e5135489ed126ca2faee1bb032ce"><h2>softfloat <span class="stats">[361 ns]</span></h2><h2>late opt <span class="stats">[28271 ns]</span></h2><code><ul class="b1 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b1 ssa-block">b1</span>:</li><li class="ssa-end-block"><span class="b1 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b2 ssa-print-func dead-block"><li class="ssa-start-block"><span class="b2 ssa-block">b2</span>:</li><li class="ssa-end-block"><span class="b2 ssa-block">BlockInvalid</span> <span class="l5 line-number">(5)</span></li></ul><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1] (slice.len[int])</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3] (slice.cap[int])</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [16] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [8] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**uint8&gt; [0] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = Store &lt;mem&gt; {*uint8} <span class="v20 ssa-value">v20</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v21 ssa-long-value"><span class="v21 ssa-value">v21</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**[3]int&gt; [8] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticCall &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = Load &lt;*[3]int&gt; <span class="v21 ssa-value">v21</span> <span class="v7 ssa-value">v7</span> (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {*int} <span class="v4 ssa-value">v4</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v19 ssa-value">v19</span> <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v24 ssa-value">v24</span> <span class="v15 ssa-value">v15</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.len[int]: <span class="v12 ssa-value">v12</span> </li><li>name slice.cap[int]: <span class="v15 ssa-value">v15</span> </li></code></td>
+<td id="dead-auto-elim--+--generic-deadcode-col" class="collapsed"><div>dead auto elim  +  generic deadcode</div></td><td id="dead-auto-elim--+--generic-deadcode-exp" class="hash-517fb2cd69cf38ae1c2956598a3173a00e36d823a8512e77b3440fcd1afa8868"><h2>dead auto elim <span class="stats">[5608 ns]</span></h2><h2>generic deadcode <span class="stats">[5187 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = Addr &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v10 ssa-long-value"><span class="v10 ssa-value">v10</span> <span class="no-line-number">(?)</span> = Addr &lt;*[3]int&gt; {&#34;&#34;..stmp_0} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v12 ssa-long-value"><span class="v12 ssa-value">v12</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [1] (slice.len[int])</span></li><li class="ssa-long-value "><span class="v15 ssa-long-value"><span class="v15 ssa-value">v15</span> <span class="no-line-number">(?)</span> = Const64 &lt;int&gt; [3] (slice.cap[int])</span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v4 ssa-long-value"><span class="v4 ssa-value">v4</span> <span class="no-line-number">(?)</span> = LocalAddr &lt;*[]int&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v24 ssa-long-value"><span class="v24 ssa-value">v24</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [16] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v19 ssa-long-value"><span class="v19 ssa-value">v19</span> <span class="l6 line-number">(<b>+6</b>)</span> = OffPtr &lt;*int&gt; [8] <span class="v4 ssa-value">v4</span></span></li><li class="ssa-long-value "><span class="v20 ssa-long-value"><span class="v20 ssa-value">v20</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**uint8&gt; [0] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = Store &lt;mem&gt; {*uint8} <span class="v20 ssa-value">v20</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v21 ssa-long-value"><span class="v21 ssa-value">v21</span> <span class="no-line-number">(?)</span> = OffPtr &lt;**[3]int&gt; [8] <span class="v2 ssa-value">v2</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = StaticCall &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = Load &lt;*[3]int&gt; <span class="v21 ssa-value">v21</span> <span class="v7 ssa-value">v7</span> (slice.ptr[*int], &arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = Move &lt;mem&gt; {[3]int} [24] <span class="v9 ssa-value">v9</span> <span class="v10 ssa-value">v10</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {*int} <span class="v4 ssa-value">v4</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v19 ssa-value">v19</span> <span class="v12 ssa-value">v12</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = Store &lt;mem&gt; {int} <span class="v24 ssa-value">v24</span> <span class="v15 ssa-value">v15</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.len[int]: <span class="v12 ssa-value">v12</span> </li><li>name slice.cap[int]: <span class="v15 ssa-value">v15</span> </li></code></td>
+<td id="check-bce--+--branchelim--+--late-fuse--+--dse--+--writebarrier--+--lower-col" class="collapsed"><div>check bce  +  branchelim  +  late fuse  +  dse  +  writebarrier  +  lower</div></td><td id="check-bce--+--branchelim--+--late-fuse--+--dse--+--writebarrier--+--lower-exp" class="hash-e3d70086670b3171afe00fdb92e29ea9e22cc94fc6fe29b9e269fa361c6f34f8"><h2>check bce <span class="stats">[469 ns]</span></h2><h2>branchelim <span class="stats">[10396 ns]</span></h2><h2>late fuse <span class="stats">[465 ns]</span></h2><h2>dse <span class="stats">[5797 ns]</span></h2><h2>writebarrier <span class="stats">[3535 ns]</span></h2><h2>lower <span class="stats">[4940420 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = LEAQ &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = MOVQstore &lt;mem&gt; <span class="v2 ssa-value">v2</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = CALLstatic &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = MOVQload &lt;*[3]int&gt; [8] <span class="v2 ssa-value">v2</span> <span class="v7 ssa-value">v7</span> (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=1,off=0] <span class="v9 ssa-value">v9</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=2,off=8] <span class="v9 ssa-value">v9</span> <span class="v13 ssa-value">v13</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=3,off=16] <span class="v9 ssa-value">v9</span> <span class="v14 ssa-value">v14</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstore &lt;mem&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=1,off=8] <span class="v2 ssa-value">v2</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=3,off=16] <span class="v2 ssa-value">v2</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.len[int]: <span class="v12 ssa-value">v12</span> </li><li>name slice.cap[int]: <span class="v15 ssa-value">v15</span> </li></code></td>
+<td id="addressing-modes--+--lowered-deadcode-for-cse-col" class="collapsed"><div>addressing modes  +  lowered deadcode for cse</div></td><td id="addressing-modes--+--lowered-deadcode-for-cse-exp" class="hash-8c77223189a23fb81cd869947bf8c497779e41d012a13ef0922cda8136d1addb"><h2>addressing modes <span class="stats">[2228 ns]</span></h2><h2>lowered deadcode for cse <span class="stats">[5902 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = LEAQ &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = MOVQstore &lt;mem&gt; <span class="v2 ssa-value">v2</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = CALLstatic &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = MOVQload &lt;*[3]int&gt; [8] <span class="v2 ssa-value">v2</span> <span class="v7 ssa-value">v7</span> (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=1,off=0] <span class="v9 ssa-value">v9</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=2,off=8] <span class="v9 ssa-value">v9</span> <span class="v13 ssa-value">v13</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=3,off=16] <span class="v9 ssa-value">v9</span> <span class="v14 ssa-value">v14</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstore &lt;mem&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=1,off=8] <span class="v2 ssa-value">v2</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=3,off=16] <span class="v2 ssa-value">v2</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li></code></td>
+<td id="lowered-cse--+--elim-unread-autos--+--tighten-tuple-selectors--+--lowered-deadcode--+--checkLower--+--late-phielim--+--late-copyelim--+--tighten--+--late-deadcode--+--critical--+--phi-tighten--+--likelyadjust--+--layout--+--schedule-col" class="collapsed"><div>lowered cse  +  elim unread autos  +  tighten tuple selectors  +  lowered deadcode  +  checkLower  +  late phielim  +  late copyelim  +  tighten  +  late deadcode  +  critical  +  phi tighten  +  likelyadjust  +  layout  +  schedule</div></td><td id="lowered-cse--+--elim-unread-autos--+--tighten-tuple-selectors--+--lowered-deadcode--+--checkLower--+--late-phielim--+--late-copyelim--+--tighten--+--late-deadcode--+--critical--+--phi-tighten--+--likelyadjust--+--layout--+--schedule-exp" class="hash-5cb24968f3cde014d45b9cc4d0d936d74153937ac268b54a3dd578e13c561803"><h2>lowered cse <span class="stats">[6944 ns]</span></h2><h2>elim unread autos <span class="stats">[6925 ns]</span></h2><h2>tighten tuple selectors <span class="stats">[424 ns]</span></h2><h2>lowered deadcode <span class="stats">[2686 ns]</span></h2><h2>checkLower <span class="stats">[709 ns]</span></h2><h2>late phielim <span class="stats">[636 ns]</span></h2><h2>late copyelim <span class="stats">[558 ns]</span></h2><h2>tighten <span class="stats">[5782 ns]</span></h2><h2>late deadcode <span class="stats">[2069 ns]</span></h2><h2>critical <span class="stats">[435 ns]</span></h2><h2>phi tighten <span class="stats">[293 ns]</span></h2><h2>likelyadjust <span class="stats">[547 ns]</span></h2><h2>layout <span class="stats">[1993 ns]</span></h2><h2>schedule <span class="stats">[10159 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v6 ssa-long-value"><span class="v6 ssa-value">v6</span> <span class="no-line-number">(?)</span> = LEAQ &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span></span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt;</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = MOVQstore &lt;mem&gt; <span class="v2 ssa-value">v2</span> <span class="v6 ssa-value">v6</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = CALLstatic &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = MOVQload &lt;*[3]int&gt; [8] <span class="v2 ssa-value">v2</span> <span class="v7 ssa-value">v7</span> (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=1,off=0] <span class="v9 ssa-value">v9</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=2,off=8] <span class="v9 ssa-value">v9</span> <span class="v13 ssa-value">v13</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=3,off=16] <span class="v9 ssa-value">v9</span> <span class="v14 ssa-value">v14</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstore &lt;mem&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=1,off=8] <span class="v2 ssa-value">v2</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=3,off=16] <span class="v2 ssa-value">v2</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li></code></td>
+<td id="late-nilcheck--+--flagalloc--+--regalloc-col" class="collapsed"><div>late nilcheck  +  flagalloc  +  regalloc</div></td><td id="late-nilcheck--+--flagalloc--+--regalloc-exp" class="hash-d29b8aa28a161af725b52e6fb6d04b4eee105edb22131e2fde5d74923aafab6a"><h2>late nilcheck <span class="stats">[2386 ns]</span></h2><h2>flagalloc <span class="stats">[3744 ns]</span></h2><h2>regalloc <span class="stats">[82955 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt; : SB</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt; : SP</span></li><li class="ssa-long-value "><span class="v5 ssa-long-value"><span class="v5 ssa-value">v5</span> <span class="l4 line-number">(<s>4</s>)</span> = LEAQ &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span> : AX</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = MOVQstore &lt;mem&gt; <span class="v2 ssa-value">v2</span> <span class="v5 ssa-value">v5</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = CALLstatic &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = MOVQload &lt;*[3]int&gt; [8] <span class="v2 ssa-value">v2</span> <span class="v7 ssa-value">v7</span> : AX (slice.ptr[*int], &arr[*[3]int])</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=1,off=0] <span class="v9 ssa-value">v9</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=2,off=8] <span class="v9 ssa-value">v9</span> <span class="v13 ssa-value">v13</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=3,off=16] <span class="v9 ssa-value">v9</span> <span class="v14 ssa-value">v14</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstore &lt;mem&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=1,off=8] <span class="v2 ssa-value">v2</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=3,off=16] <span class="v2 ssa-value">v2</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li></code></td>
+<td id="loop-rotate--+--stackframe--+--trim-col" class="collapsed"><div>loop rotate  +  stackframe  +  trim</div></td><td id="loop-rotate--+--stackframe--+--trim-exp" class="hash-50d2820aafdaf3abad47da1f3b2fd5a6eff2acbe240f664713879c2e622046ba"><h2>loop rotate <span class="stats">[311 ns]</span></h2><h2>stackframe <span class="stats">[2383 ns]</span></h2><h2>trim <span class="stats">[453 ns]</span></h2><code><ul class="b4 ssa-print-func "><li class="ssa-start-block"><span class="b4 ssa-block">b4</span>:<button onclick="hideBlock(this)">-</button></li><li class="ssa-value-list"><ul><li class="ssa-long-value "><span class="v1 ssa-long-value"><span class="v1 ssa-value">v1</span> <span class="no-line-number">(?)</span> = InitMem &lt;mem&gt;</span></li><li class="ssa-long-value "><span class="v3 ssa-long-value"><span class="v3 ssa-value">v3</span> <span class="no-line-number">(?)</span> = SB &lt;uintptr&gt; : SB</span></li><li class="ssa-long-value "><span class="v2 ssa-long-value"><span class="v2 ssa-value">v2</span> <span class="no-line-number">(?)</span> = SP &lt;uintptr&gt; : SP</span></li><li class="ssa-long-value "><span class="v5 ssa-long-value"><span class="v5 ssa-value">v5</span> <span class="l4 line-number">(<s>4</s>)</span> = LEAQ &lt;*uint8&gt; {type.[3]int} <span class="v3 ssa-value">v3</span> : AX</span></li><li class="ssa-long-value "><span class="v17 ssa-long-value"><span class="v17 ssa-value">v17</span> <span class="l4 line-number">(<s>4</s>)</span> = MOVQstore &lt;mem&gt; <span class="v2 ssa-value">v2</span> <span class="v5 ssa-value">v5</span> <span class="v1 ssa-value">v1</span></span></li><li class="ssa-long-value "><span class="v7 ssa-long-value"><span class="v7 ssa-value">v7</span> <span class="l4 line-number">(<b>+4</b>)</span> = CALLstatic &lt;mem&gt; {AuxCall{runtime.newobject([*uint8,0])[*[3]int,8]}} [16] <span class="v17 ssa-value">v17</span></span></li><li class="ssa-long-value "><span class="v9 ssa-long-value"><span class="v9 ssa-value">v9</span> <span class="l4 line-number">(4)</span> = MOVQload &lt;*[3]int&gt; [8] <span class="v2 ssa-value">v2</span> <span class="v7 ssa-value">v7</span> : AX (&arr[*[3]int], slice.ptr[*int])</span></li><li class="ssa-long-value "><span class="v13 ssa-long-value"><span class="v13 ssa-value">v13</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=1,off=0] <span class="v9 ssa-value">v9</span> <span class="v7 ssa-value">v7</span></span></li><li class="ssa-long-value "><span class="v14 ssa-long-value"><span class="v14 ssa-value">v14</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=2,off=8] <span class="v9 ssa-value">v9</span> <span class="v13 ssa-value">v13</span></span></li><li class="ssa-long-value "><span class="v11 ssa-long-value"><span class="v11 ssa-value">v11</span> <span class="l4 line-number">(4)</span> = MOVQstoreconst &lt;mem&gt; [val=3,off=16] <span class="v9 ssa-value">v9</span> <span class="v14 ssa-value">v14</span></span></li><li class="ssa-long-value "><span class="v27 ssa-long-value"><span class="v27 ssa-value">v27</span> <span class="l6 line-number">(<s>6</s>)</span> = VarDef &lt;mem&gt; {~r0} <span class="v11 ssa-value">v11</span></span></li><li class="ssa-long-value "><span class="v16 ssa-long-value"><span class="v16 ssa-value">v16</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstore &lt;mem&gt; {~r0} <span class="v2 ssa-value">v2</span> <span class="v9 ssa-value">v9</span> <span class="v27 ssa-value">v27</span></span></li><li class="ssa-long-value "><span class="v23 ssa-long-value"><span class="v23 ssa-value">v23</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=1,off=8] <span class="v2 ssa-value">v2</span> <span class="v16 ssa-value">v16</span></span></li><li class="ssa-long-value "><span class="v28 ssa-long-value"><span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span> = MOVQstoreconst &lt;mem&gt; {~r0} [val=3,off=16] <span class="v2 ssa-value">v2</span> <span class="v23 ssa-value">v23</span></span></li></ul></li><li class="ssa-end-block"><span class="b4 ssa-block">Ret</span> <span class="v28 ssa-value">v28</span> <span class="l6 line-number">(<b>+6</b>)</span></li></ul><li>name &arr[*[3]int]: <span class="v9 ssa-value">v9</span> </li><li>name slice.ptr[*int]: <span class="v9 ssa-value">v9</span> </li></code></td>
+<td id="genssa-col" class="collapsed"><div>genssa</div></td><td id="genssa-exp" class="ssa-prog"><h2>genssa</h2><code><dl class="ssa-gen"><dt class="ssa-prog-src"></dt><dd class="ssa-prog"># /home/kesa/MyDocuments/MyGitRepo/golang-notes/open-source-books/The-Design-and-Implementation-of-Golang/3.Data-Structure/3.2.Slice/slice.go</dd><dt class="ssa-prog-src"></dt><dd class="ssa-prog">00000 <span class="l3 line-number">(3)</span> TEXT	&#34;&#34;.newSlice(SB), ABIInternal</dd><dt class="ssa-prog-src"></dt><dd class="ssa-prog">00001 <span class="l3 line-number">(3)</span> FUNCDATA	$0, gclocals·2a5305abe05176240e61b8620e19a815(SB)</dd><dt class="ssa-prog-src"></dt><dd class="ssa-prog">00002 <span class="l3 line-number">(3)</span> FUNCDATA	$1, gclocals·33cdeccccebe80329f1fdbee7f5874cb(SB)</dd><dt class="ssa-prog-src"><span class="v5 ssa-value">v5</span></dt><dd class="ssa-prog">00003 <span class="l4 line-number">(<b>+4</b>)</span> LEAQ	type.[3]int(SB), AX</dd><dt class="ssa-prog-src"><span class="v17 ssa-value">v17</span></dt><dd class="ssa-prog">00004 <span class="l4 line-number">(<s>4</s>)</span> MOVQ	AX, (SP)</dd><dt class="ssa-prog-src"><span class="v7 ssa-value">v7</span></dt><dd class="ssa-prog">00005 <span class="l4 line-number">(<s>4</s>)</span> PCDATA	$1, $0</dd><dt class="ssa-prog-src"><span class="v7 ssa-value">v7</span></dt><dd class="ssa-prog">00006 <span class="l4 line-number">(<s>4</s>)</span> CALL	runtime.newobject(SB)</dd><dt class="ssa-prog-src"><span class="v9 ssa-value">v9</span></dt><dd class="ssa-prog">00007 <span class="l4 line-number">(<s>4</s>)</span> MOVQ	8(SP), AX</dd><dt class="ssa-prog-src"><span class="v13 ssa-value">v13</span></dt><dd class="ssa-prog">00008 <span class="l4 line-number">(<s>4</s>)</span> MOVQ	$1, (AX)</dd><dt class="ssa-prog-src"><span class="v14 ssa-value">v14</span></dt><dd class="ssa-prog">00009 <span class="l4 line-number">(<s>4</s>)</span> MOVQ	$2, 8(AX)</dd><dt class="ssa-prog-src"><span class="v11 ssa-value">v11</span></dt><dd class="ssa-prog">00010 <span class="l4 line-number">(<s>4</s>)</span> MOVQ	$3, 16(AX)</dd><dt class="ssa-prog-src"><span class="v16 ssa-value">v16</span></dt><dd class="ssa-prog">00011 <span class="l6 line-number">(<b>+6</b>)</span> MOVQ	AX, &#34;&#34;.~r0(SP)</dd><dt class="ssa-prog-src"><span class="v23 ssa-value">v23</span></dt><dd class="ssa-prog">00012 <span class="l6 line-number">(<s>6</s>)</span> MOVQ	$1, &#34;&#34;.~r0+8(SP)</dd><dt class="ssa-prog-src"><span class="v28 ssa-value">v28</span></dt><dd class="ssa-prog">00013 <span class="l6 line-number">(<s>6</s>)</span> MOVQ	$3, &#34;&#34;.~r0+16(SP)</dd><dt class="ssa-prog-src"><b><span class="b4 ssa-block">b4</span></b></dt><dd class="ssa-prog">00014 <span class="l6 line-number">(<s>6</s>)</span> RET</dd><dt class="ssa-prog-src"></dt><dd class="ssa-prog">00015 <span class="l? line-number">(?)</span> END</dd></dl></code></td>
+</tr></table></body></html>
