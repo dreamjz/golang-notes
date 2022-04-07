@@ -84,3 +84,13 @@ func (n *node) search(parts []string, height int) *node {
 	}
 	return nil
 }
+
+// 遍历前缀树，获取所有的路由模式节点
+func (n *node) travel(list *[]*node) {
+	if n.pattern != "" {
+		*list = append(*list, n)
+	}
+	for _, child := range n.children {
+		child.travel(list)
+	}
+}
