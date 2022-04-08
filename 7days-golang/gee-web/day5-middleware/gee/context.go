@@ -19,6 +19,9 @@ type Context struct {
 	Params map[string]string // 路由参数
 	// response info
 	StatusCode int
+	// middleware
+	handlers []HandlerFunc
+	index int
 }
 
 // the constructor of gee.Context
@@ -28,6 +31,15 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
+		index: -1,
+	}
+}
+
+func (c *Context) Next() {
+	c.index++
+	s := len(c.handlers)
+	for ;c.index < s; c.index++{
+		c.handlers[c.index](c)
 	}
 }
 
