@@ -45,6 +45,7 @@ func (n *node) insert(pattern string, parts []string, height int) {
 	if len(parts) == height {
 		// 记录匹配模式
 		n.pattern = pattern
+		return
 	}
 
 	part := parts[height]

@@ -1,6 +1,9 @@
 package gee
 
-import "strings"
+import (
+	"net/http"
+	"strings"
+)
 
 // router 结构
 type router struct {
@@ -21,9 +24,11 @@ func parsePattern(pattern string) []string {
 
 	parts := make([]string, 0)
 	for _, val := range vs {
-		parts = append(parts, val)
-		if val[0] == '*' {
-			break
+		if val != "" {
+			parts = append(parts, val)
+			if val[0] == '*' {
+				break
+			}
 		}
 	}
 	return parts
@@ -95,5 +100,7 @@ func (r *router) handle(c *Context) {
 		c.Params = params
 		key := c.Method + "-" + n.pattern
 		r.handlers[key](c)
+	} else {
+		c.String(http.StatusNotFound, "404 NOT FOUND: %s\n", c.Path)
 	}
 }
