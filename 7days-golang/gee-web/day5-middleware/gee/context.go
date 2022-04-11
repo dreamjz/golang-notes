@@ -21,7 +21,7 @@ type Context struct {
 	StatusCode int
 	// middleware
 	handlers []HandlerFunc
-	index int
+	index    int
 }
 
 // the constructor of gee.Context
@@ -31,16 +31,25 @@ func newContext(w http.ResponseWriter, req *http.Request) *Context {
 		Req:    req,
 		Path:   req.URL.Path,
 		Method: req.Method,
-		index: -1,
+		index:  -1,
 	}
 }
 
 func (c *Context) Next() {
 	c.index++
 	s := len(c.handlers)
-	for ;c.index < s; c.index++{
+	for ; c.index < s; c.index++ {
 		c.handlers[c.index](c)
 	}
+}
+
+func (c *Context) Fail(code int, err string) {
+	// 终止执行
+	c.index = len(c.handlers)
+	// 返回
+	c.JSON(code, H{
+		"message": err,
+	})
 }
 
 // Param returns the parameter in URL path
