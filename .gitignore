@@ -7,4 +7,5 @@ go.sum
 **/log/
 *.out
 *.test
-
+# pprof profile
+*.pprof
