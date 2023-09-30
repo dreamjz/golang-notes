@@ -19,7 +19,7 @@ func Open() *APIConnection {
 }
 
 func (a *APIConnection) ReadFile(ctx context.Context) error {
-	if err := a.limiter.WaitN(ctx, 2); err != nil {
+	if err := a.limiter.Wait(ctx); err != nil {
 		return err
 	}
 
