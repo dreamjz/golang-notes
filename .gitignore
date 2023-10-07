@@ -9,3 +9,5 @@ go.sum
 *.test
 # pprof profile
 *.pprof
+*.prof
+*.exe
